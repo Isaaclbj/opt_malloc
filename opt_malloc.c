@@ -27,9 +27,9 @@
 static const int BASE_SIZE = 8;
 static const int BIN_NUMBER = 10;
 static const size_t PAGE_SIZE = 4096;
-static const size_t LARGE_CHUNK = 64 * PAGE_SIZE;
+static const size_t LARGE_CHUNK = 16 * PAGE_SIZE;
 static const size_t SMALL_CHUNK = 4 * PAGE_SIZE;
-static const size_t OSS = 256 * PAGE_SIZE;
+static const size_t OSS = PAGE_SIZE * PAGE_SIZE;
 static pthread_mutex_t lock;
 
 typedef struct free_list {
@@ -89,6 +89,8 @@ void* ask_galaxy(size_t size)
     return ret;
 }
 
+/*
+
 //initialize the local bin
 void bin_init(int bin_num)
 {
@@ -107,6 +109,8 @@ void bin_init(int bin_num)
         temp = temp->next;
     }
 }
+
+*/
 
 // find which bin [size] belongs to
 int find_bin_num(size_t size)
@@ -137,13 +141,15 @@ free_list* bin_get(int bin_num)
 
     if(leftover[bin_num] < ss)
     {
-        bin_init(bin_num);
+        ret = ask_galaxy(ss);
     }
-
-    leftover[bin_num] -= ss;
-    ret = bins[bin_num];
-    //point to next block
-    bins[bin_num] = bins[bin_num]->next;
+    else
+    {
+        leftover[bin_num] -= ss;
+        ret = bins[bin_num];
+        //point to next block
+        bins[bin_num] = bins[bin_num]->next;
+    }
     return ret;
 }
 
